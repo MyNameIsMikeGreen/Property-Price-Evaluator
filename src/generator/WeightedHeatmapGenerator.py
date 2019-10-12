@@ -3,17 +3,10 @@ from datetime import datetime
 import gmplot
 
 
-class WeightedCoordinate(object):
-    def __init__(self, latitude: float, longitude: float, weight: int):
-        self.latitude = latitude
-        self.longitude = longitude
-        self.weight = weight
-
-
 class WeightedHeatmap(object):
 
-    def __init__(self):
-        self.weighted_coordinates = []
+    def __init__(self, weighted_coordinates=None):
+        self.weighted_coordinates = weighted_coordinates
 
     def generate_weighted_heatmap(self, latitude, longitude, zoom=13, filename=None):
         gmap = gmplot.GoogleMapPlotter(latitude, longitude, zoom)
