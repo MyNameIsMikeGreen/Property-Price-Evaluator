@@ -5,7 +5,7 @@ from time import sleep
 
 import requests
 
-from generator.LocationGenerator import Location
+from Locations import Location, WeightedCoordinate
 
 BASE_URL = "https://api.nestoria.co.uk/api"
 BASE_PARAMS = {
@@ -26,27 +26,17 @@ class InvalidResponseError(Exception):
         self.message = message
 
 
-class WeightedCoordinate(object):
-    def __init__(self, latitude: float, longitude: float, weight: int):
-        self.latitude = latitude
-        self.longitude = longitude
-        self.weight = weight
-
-    def __str__(self):
-        return f"({self.latitude},{self.longitude},{self.weight})"
-
-
 def assess_locations(locations: list, search_criteria: SearchCriteria):
     logging.info("Searching locations...")
     logging.debug(f"{len(locations)} locations to be searched.")
     weighted_coordinates = []
     for location in locations:
-        listings = search_listings(location, search_criteria)
+        listings = _search_listings(location, search_criteria)
         if len(listings) == 0:
             continue
-        average = average_listing_price(listings)
+        average = _average_listing_price(listings)
         logging.debug(f"Average listing price: {average}")
-        weighting = price_as_weighting(average)
+        weighting = _price_as_weighting(average)
         weighted_coordinate = WeightedCoordinate(location.latitude, location.longitude, weighting)
         logging.debug(f"Appending weighted coordinate: {str(weighted_coordinate)}")
         weighted_coordinates.append(weighted_coordinate)
@@ -54,7 +44,7 @@ def assess_locations(locations: list, search_criteria: SearchCriteria):
     return weighted_coordinates
 
 
-def search_listings(location: Location, search_criteria: SearchCriteria):
+def _search_listings(location: Location, search_criteria: SearchCriteria):
     logging.debug(f"Searching listings for location: {str(location)}")
     params = {
         "bedrooms_min": search_criteria.bedrooms_min,
@@ -63,7 +53,7 @@ def search_listings(location: Location, search_criteria: SearchCriteria):
     }
     params.update(BASE_PARAMS)
     response = requests.get(url=BASE_URL, params=params)
-    if not response_is_valid(response):
+    if not _response_is_valid(response):
         raise InvalidResponseError("Request was unsuccessful.")
     response_content = json.loads(response.text)
     listings = response_content["response"]["listings"]
@@ -71,7 +61,7 @@ def search_listings(location: Location, search_criteria: SearchCriteria):
     return listings
 
 
-def response_is_valid(response):
+def _response_is_valid(response):
     if response.status_code != 200 \
             or response.reason != "OK"\
             or not response.text.strip():
@@ -79,9 +69,9 @@ def response_is_valid(response):
     return True
 
 
-def average_listing_price(listings: list):
+def _average_listing_price(listings: list):
     return mean([listing["price"] for listing in listings])
 
 
-def price_as_weighting(price: int):
+def _price_as_weighting(price: int):
     return int(price/10000)

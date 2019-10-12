@@ -1,9 +1,9 @@
 import argparse
 import logging
 
-from generator.LocationGenerator import generate_locations
-from generator.WeightedHeatmapGenerator import WeightedHeatmap
-from generator.WeightedLocationGenerator import SearchCriteria, assess_locations
+from Locations import generate_locations_across_area
+from Heatmaps import WeightedHeatmap
+from Nestoria import SearchCriteria, assess_locations
 
 
 def parse_arguments():
@@ -23,7 +23,7 @@ def set_logging_level(log_level_string):
 
 def main():
     search_criteria = SearchCriteria(bedrooms_min=args.bedrooms_min, bedrooms_max=args.bedrooms_max)
-    locations = generate_locations()
+    locations = generate_locations_across_area()
     weighted_coordinates = assess_locations(locations, search_criteria)
     heatmap = WeightedHeatmap(weighted_coordinates)
     logging.info("Generating heatmap...")
