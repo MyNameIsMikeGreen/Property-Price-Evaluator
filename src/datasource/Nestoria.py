@@ -11,7 +11,9 @@ BASE_URL = "https://api.nestoria.co.uk/api"
 BASE_PARAMS = {
     "encoding": "json",
     "action": "search_listings",
-    "pretty": 1
+    "pretty": 1,
+    "sort": "distance",
+    "number_of_results": 50
 }
 
 
@@ -26,7 +28,7 @@ class InvalidResponseError(Exception):
         self.message = message
 
 
-def assess_locations(locations: list, search_criteria: SearchCriteria):
+def assess_locations(locations: list, search_criteria: dict):
     logging.info(f"Searching {len(locations)} locations...")
     weighted_coordinates = []
     for location in locations:
@@ -43,15 +45,11 @@ def assess_locations(locations: list, search_criteria: SearchCriteria):
     return weighted_coordinates
 
 
-def _search_listings(location: Location, search_criteria: SearchCriteria):
+def _search_listings(location: Location, search_criteria: dict):
     logging.debug(f"Searching listings for location: {str(location)}")
-    params = {
-        "bedrooms_min": search_criteria.bedrooms_min,
-        "bedrooms_max": search_criteria.bedrooms_max,
-        "centre_point": str(location)
-    }
-    params.update(BASE_PARAMS)
-    response = requests.get(url=BASE_URL, params=params)
+    search_criteria.update(BASE_PARAMS)
+    search_criteria["centre_point"] = str(location)
+    response = requests.get(url=BASE_URL, params=search_criteria)
     if not _response_is_valid(response):
         raise InvalidResponseError("Request was unsuccessful.")
     response_content = json.loads(response.text)

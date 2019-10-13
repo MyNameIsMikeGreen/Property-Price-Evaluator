@@ -1,0 +1,14 @@
+{
+  "listing_type": "buy",
+  "bedroom_min": 0,
+  "bedroom_max": 0,
+  "room_min": 0,
+  "room_max": 0,
+  "bathroom_min": 0,
+  "bathroom_max": 0,
+  "size_min": 0,
+  "size_max": 0,
+  "keywords": "",
+  "keywords_exclude": "",
+  "has_photo": 1
+}
