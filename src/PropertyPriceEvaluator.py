@@ -14,7 +14,7 @@ def parse_arguments():
     parser.add_argument("start_long", help="Upper-left longitude coordinate for search area rectangle.", type=float)
     parser.add_argument("end_lat", help="Lower-right latitude coordinate for search area rectangle.", type=float)
     parser.add_argument("end_long", help="Lower-right longitude coordinate for search area rectangle.", type=float)
-    parser.add_argument("--lat_step", help="The step value between latitude points.")
+    parser.add_argument("--step_lat", help="The step value between latitude points.")
     parser.add_argument("--long_step", help="The step value between longitude points.")
     parser.add_argument("--bedrooms_min", help="Minimum number of bedrooms.")
     parser.add_argument("--bedrooms_max", help="Maximum number of bedrooms.")
@@ -28,14 +28,14 @@ def set_logging_level(log_level_string):
 
 
 def get_locations_from_args():
-    if args.lat_step and args.long_step:
-        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390, args.lat_step, args.long_step)
-    elif args.lat_step:
-        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390, step_latitude=args.lat_step)
+    if args.step_lat and args.long_step:
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long, args.step_lat, args.long_step)
+    elif args.step_lat:
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long, step_latitude=args.step_lat)
     elif args.long_step:
-        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390, step_longitude=args.long_step)
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long, step_longitude=args.long_step)
     else:
-        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390)
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long)
     return locations
 
 

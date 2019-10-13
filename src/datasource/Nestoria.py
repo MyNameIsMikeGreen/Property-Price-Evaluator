@@ -27,8 +27,7 @@ class InvalidResponseError(Exception):
 
 
 def assess_locations(locations: list, search_criteria: SearchCriteria):
-    logging.info("Searching locations...")
-    logging.debug(f"{len(locations)} locations to be searched.")
+    logging.info(f"Searching {len(locations)} locations...")
     weighted_coordinates = []
     for location in locations:
         listings = _search_listings(location, search_criteria)
