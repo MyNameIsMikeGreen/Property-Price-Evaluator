@@ -30,11 +30,13 @@ class WeightedCoordinate(object):
         return f"({self.latitude},{self.longitude},{self.weight})"
 
 
-def generate_locations_across_area():
+def generate_locations_across_area(start_latitude, start_longitude, end_latitude, end_longitude, step_latitude=0.0005, step_longitude=0.0010):
     locations = []
-    for x in range(0, 2):
-        longitude = -2.2430 + (float(x) * 0.0005)
-        for y in range(0, 2):
-            latitude = 53.4800 + (float(y) * 0.0005)
-            locations.append(Location(latitude, longitude, 0.5, Units.KILOMETERS))
+    current_latitude = start_latitude
+    while current_latitude < end_latitude:
+        current_longitude = start_longitude
+        while current_longitude < end_longitude:
+            locations.append(Location(current_latitude, current_longitude, 0.5, Units.KILOMETERS))
+            current_longitude += step_longitude
+        current_latitude += step_latitude
     return locations

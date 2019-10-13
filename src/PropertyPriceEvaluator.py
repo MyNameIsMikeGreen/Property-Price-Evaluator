@@ -1,15 +1,21 @@
 import argparse
 import logging
 
-from Locations import generate_locations_across_area
-from Heatmaps import WeightedHeatmap
-from Nestoria import SearchCriteria, assess_locations
+from domain.Locations import generate_locations_across_area
+from plotting.Heatmaps import WeightedHeatmap
+from datasource.Nestoria import SearchCriteria, assess_locations
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
     log_levels = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"]
-    log_levels.append([level.lower() for level in log_levels])
+    log_levels.extend([level.lower() for level in log_levels])
+    parser.add_argument("start_lat", help="Upper-left latitude coordinate for search area rectangle.", type=float)
+    parser.add_argument("start_long", help="Upper-left longitude coordinate for search area rectangle.", type=float)
+    parser.add_argument("end_lat", help="Lower-right latitude coordinate for search area rectangle.", type=float)
+    parser.add_argument("end_long", help="Lower-right longitude coordinate for search area rectangle.", type=float)
+    parser.add_argument("--lat_step", help="The step value between latitude points.")
+    parser.add_argument("--long_step", help="The step value between longitude points.")
     parser.add_argument("--bedrooms_min", help="Minimum number of bedrooms.")
     parser.add_argument("--bedrooms_max", help="Maximum number of bedrooms.")
     parser.add_argument("--log", choices=log_levels)
@@ -21,9 +27,21 @@ def set_logging_level(log_level_string):
     logging.basicConfig(level=log_level)
 
 
+def get_locations_from_args():
+    if args.lat_step and args.long_step:
+        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390, args.lat_step, args.long_step)
+    elif args.lat_step:
+        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390, step_latitude=args.lat_step)
+    elif args.long_step:
+        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390, step_longitude=args.long_step)
+    else:
+        locations = generate_locations_across_area(53.4800, -2.2430, 53.4820, -2.2390)
+    return locations
+
+
 def main():
     search_criteria = SearchCriteria(bedrooms_min=args.bedrooms_min, bedrooms_max=args.bedrooms_max)
-    locations = generate_locations_across_area()
+    locations = get_locations_from_args()
     weighted_coordinates = assess_locations(locations, search_criteria)
     heatmap = WeightedHeatmap(weighted_coordinates)
     logging.info("Generating heatmap...")

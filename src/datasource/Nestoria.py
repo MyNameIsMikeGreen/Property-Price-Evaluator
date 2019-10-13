@@ -5,7 +5,7 @@ from time import sleep
 
 import requests
 
-from Locations import Location, WeightedCoordinate
+from domain.Locations import Location, WeightedCoordinate
 
 BASE_URL = "https://api.nestoria.co.uk/api"
 BASE_PARAMS = {
@@ -57,7 +57,7 @@ def _search_listings(location: Location, search_criteria: SearchCriteria):
         raise InvalidResponseError("Request was unsuccessful.")
     response_content = json.loads(response.text)
     listings = response_content["response"]["listings"]
-    logging.debug(f"{len(listings)} found.")
+    logging.debug(f"{len(listings)} listings found for location: {str(location)}.")
     return listings
 
 
