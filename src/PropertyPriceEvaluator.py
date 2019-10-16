@@ -2,9 +2,9 @@ import argparse
 import json
 import logging
 
+from datasource.Nestoria import assess_locations
 from domain.Locations import generate_locations_across_area
 from plotting.Heatmaps import WeightedHeatmap
-from datasource.Nestoria import SearchCriteria, assess_locations
 
 
 def parse_arguments():
@@ -29,11 +29,14 @@ def set_logging_level(log_level_string):
 
 def get_locations_from_args():
     if args.step_lat and args.step_long:
-        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long, args.step_lat, args.step_long)
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long,
+                                                   args.step_lat, args.step_long)
     elif args.step_lat:
-        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long, step_latitude=args.step_lat)
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long,
+                                                   step_latitude=args.step_lat)
     elif args.step_long:
-        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long, step_longitude=args.step_long)
+        locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long,
+                                                   step_longitude=args.step_long)
     else:
         locations = generate_locations_across_area(args.start_lat, args.start_long, args.end_lat, args.end_long)
     return locations
@@ -46,7 +49,7 @@ def main():
     weighted_coordinates = assess_locations(locations, search_criteria)
     heatmap = WeightedHeatmap(weighted_coordinates)
     logging.info("Generating heatmap...")
-    heatmap.generate_weighted_heatmap(53.4800, -2.2430)
+    heatmap.generate_weighted_heatmap(args.start_lat, args.end_long)
 
 
 if __name__ == '__main__':
