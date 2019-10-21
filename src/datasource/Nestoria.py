@@ -4,6 +4,7 @@ from statistics import mean
 from time import sleep
 
 import requests
+from requests import Response
 
 from domain.Locations import Location, WeightedCoordinate
 
@@ -28,19 +29,20 @@ class InvalidResponseError(Exception):
         self.message = message
 
 
-def assess_locations(locations: list, search_criteria: dict):
+def assess_locations(locations: list, search_criteria: dict, sleep_secs: int = 1):
     logging.info(f"Searching {len(locations)} locations...")
     weighted_coordinates = []
     for location in locations:
         try:
             listings = _search_listings(location, search_criteria)
+            weighted_coordinate = _nestoria_listings_as_weighted_coordinate(listings, location)
         except:
             logging.warning("Unsuccessful search for location: " + str(location))
+            sleep(sleep_secs)
             continue
-        weighted_coordinate = _nestoria_listings_as_weighted_coordinate(listings, location)
         logging.debug(f"Appending weighted coordinate: {str(weighted_coordinate)}")
         weighted_coordinates.append(weighted_coordinate)
-        sleep(1)
+        sleep(sleep_secs)
     return weighted_coordinates
 
 
@@ -56,11 +58,7 @@ def _search_listings(location: Location, search_criteria: dict):
     logging.debug(f"Searching listings for location: {str(location)}")
     search_criteria.update(BASE_PARAMS)
     search_criteria["centre_point"] = str(location)
-    try:
-        response = requests.get(url=BASE_URL, params=search_criteria)
-    except:
-        _handle_failed_response()
-        response = requests.get(url=BASE_URL, params=search_criteria)
+    response = _make_request(search_criteria)
     if not _response_is_valid(response):
         raise InvalidResponseError("Request was unsuccessful.")
     response_content = json.loads(response.text)
@@ -71,12 +69,20 @@ def _search_listings(location: Location, search_criteria: dict):
     return listings
 
 
-def _handle_failed_response():
-    logging.warning("Failed to make request. Sleeping before retry...")
-    sleep(10)
+def _make_request(search_criteria: dict, iteration=1):
+    try:
+        return requests.get(url=BASE_URL, params=search_criteria)
+    except:
+        if iteration < 3:
+            logging.warning(f"Failed to make request ({iteration}). Sleeping before retry...")
+            sleep(15)
+            return _make_request(search_criteria, iteration + 1)
+        else:
+            logging.error("Failed to make request after 3 attempts. Aborting.")
+            exit(-1)
 
 
-def _response_is_valid(response):
+def _response_is_valid(response: Response):
     if response.status_code != 200 \
             or response.reason != "OK" \
             or not response.text.strip():

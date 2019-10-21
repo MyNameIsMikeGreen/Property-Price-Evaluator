@@ -18,6 +18,7 @@ def parse_arguments():
     parser.add_argument("--step_lat", help="The step value between latitude points.", type=float)
     parser.add_argument("--step_long", help="The step value between longitude points.", type=float)
     parser.add_argument("--search_params_file", help="Path to search filter file, json formatted.")
+    parser.add_argument("--sleep_secs", help="Seconds to sleep between searches.", type=int, default=1)
     parser.add_argument("--log", choices=log_levels)
     return parser.parse_args()
 
@@ -46,7 +47,7 @@ def main():
     locations = get_locations_from_args()
     with open(args.search_params_file) as search_params_file:
         search_criteria = json.load(search_params_file)
-    weighted_coordinates = assess_locations(locations, search_criteria)
+    weighted_coordinates = assess_locations(locations, search_criteria, args.sleep_secs)
     heatmap = WeightedHeatmap(weighted_coordinates)
     logging.info("Generating heatmap...")
     heatmap.generate_weighted_heatmap(args.start_lat, args.end_long)
