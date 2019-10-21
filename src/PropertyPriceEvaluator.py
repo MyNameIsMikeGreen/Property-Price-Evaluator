@@ -18,7 +18,7 @@ def parse_arguments():
     parser.add_argument("--step_lat", help="The step value between latitude points.", type=float)
     parser.add_argument("--step_long", help="The step value between longitude points.", type=float)
     parser.add_argument("--search_params_file", help="Path to search filter file, json formatted.")
-    parser.add_argument("--sleep_secs", help="Seconds to sleep between searches.", type=int, default=1)
+    parser.add_argument("--sleep_secs", help="Seconds to sleep between searches.", type=float, default=1)
     parser.add_argument("--log", choices=log_levels)
     return parser.parse_args()
 
