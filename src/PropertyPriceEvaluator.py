@@ -43,8 +43,17 @@ def get_locations_from_args():
     return locations
 
 
+def _estimate_execution_time(locations_count, sleep_secs):
+    return locations_count * sleep_secs * 1.1
+
+
 def main():
     locations = get_locations_from_args()
+    time_estimate = _estimate_execution_time(len(locations), args.sleep_secs)
+    logging.info(f"Estimated execution time: "
+                 f"{round(time_estimate, 2)} seconds --- "
+                 f"{round(time_estimate/60, 2)} minutes --- "
+                 f"{round(time_estimate/3600, 2)} hours")
     with open(args.search_params_file) as search_params_file:
         search_criteria = json.load(search_params_file)
     weighted_coordinates = assess_locations(locations, search_criteria, args.sleep_secs)
