@@ -2,9 +2,9 @@ import argparse
 import json
 import logging
 
-from datasource.PropertyApi import assess_locations
 from domain.Locations import generate_locations_across_area
 from plotting.Heatmaps import WeightedHeatmap
+from propertydata.provider import Zoopla, Nestoria
 
 
 def parse_arguments():
@@ -56,7 +56,12 @@ def main():
                  f"{round(time_estimate/3600, 2)} hours")
     with open(args.search_params_file) as search_params_file:
         search_criteria = json.load(search_params_file)
-    weighted_coordinates = assess_locations(locations, search_criteria, args.sleep_secs, provider="Zoopla")  # TODO: Provide the provider intelligently
+
+    provider = "Zoopla"  # TODO: Supply the provider intelligently
+    if provider == "Zoopla":
+        weighted_coordinates = Zoopla.ZooplaProvider().assess_locations(locations, search_criteria, args.sleep_secs)
+    elif provider == "Nestoria":
+        weighted_coordinates = Nestoria.NestoriaProvider().assess_locations(locations, search_criteria, args.sleep_secs)
     heatmap = WeightedHeatmap(weighted_coordinates)
     logging.info("Generating heatmap...")
     heatmap.generate_weighted_heatmap(args.start_lat, args.end_long)

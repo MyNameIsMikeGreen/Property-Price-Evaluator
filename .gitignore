@@ -131,3 +131,6 @@ dmypy.json
 *.html
 heatmaps/
 *.json
+*api_key*
+*api-key*
+*apikey*
