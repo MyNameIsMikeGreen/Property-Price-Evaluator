@@ -23,7 +23,7 @@ class ZooplaProvider(Provider):
         search_criteria["radius"] = location.radius
         response = self._make_request(search_criteria)
         if not self._response_is_valid(response):
-            raise InvalidResponseError("Request was unsuccessful.")
+            raise InvalidResponseError("Request was unsuccessful (HTTP " + response.status_code + "- " + response.reason + ").")
         response_content = json.loads(response.text)
         listings = response_content["listing"]
         logging.debug(f"{len(listings)} listings found for location: {str(location)}.")
