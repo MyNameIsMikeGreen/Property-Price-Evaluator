@@ -9,8 +9,7 @@ from domain.Locations import Location, WeightedCoordinate
 
 
 class InvalidResponseError(Exception):
-    def __init__(self, message):
-        self.message = message
+    pass
 
 
 class Provider(ABC):

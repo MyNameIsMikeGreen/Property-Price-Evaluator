@@ -4,7 +4,7 @@ import logging
 
 from domain.Locations import generate_locations_across_area
 from plotting.Heatmaps import WeightedHeatmap
-from propertydata.provider import Zoopla, Nestoria
+from propertydata.provider import ProviderFactory
 
 
 def parse_arguments():
@@ -15,6 +15,7 @@ def parse_arguments():
     parser.add_argument("start_long", help="Upper-left longitude coordinate for search area rectangle.", type=float)
     parser.add_argument("end_lat", help="Lower-right latitude coordinate for search area rectangle.", type=float)
     parser.add_argument("end_long", help="Lower-right longitude coordinate for search area rectangle.", type=float)
+    parser.add_argument("provider", help="The name of the provider of property data.", choices=["Zoopla", "Nestoria"])
     parser.add_argument("--step_lat", help="The step value between latitude points.", type=float)
     parser.add_argument("--step_long", help="The step value between longitude points.", type=float)
     parser.add_argument("--search_params_file", help="Path to search filter file, json formatted.")
@@ -57,11 +58,8 @@ def main():
     with open(args.search_params_file) as search_params_file:
         search_criteria = json.load(search_params_file)
 
-    provider = "Zoopla"  # TODO: Supply the provider intelligently
-    if provider == "Zoopla":
-        weighted_coordinates = Zoopla.ZooplaProvider().assess_locations(locations, search_criteria, args.sleep_secs)
-    elif provider == "Nestoria":
-        weighted_coordinates = Nestoria.NestoriaProvider().assess_locations(locations, search_criteria, args.sleep_secs)
+    provider = ProviderFactory.get_provider(args.provider)
+    weighted_coordinates = provider.assess_locations(locations, search_criteria, args.sleep_secs)
     heatmap = WeightedHeatmap(weighted_coordinates)
     logging.info("Generating heatmap...")
     heatmap.generate_weighted_heatmap(args.start_lat, args.end_long)
